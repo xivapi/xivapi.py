@@ -58,7 +58,6 @@ class XIVAPIClient:
         """
         url = ( f'{self.base_url}/character/search?' \
                 f'name={forename}%20{surname}&server={world}&page={page}&private_key={self.api_key}')
-        print(url)
         async with self.session.get(url) as response:
             return await self.process_response(response)
 
@@ -222,9 +221,9 @@ class XIVAPIClient:
             return await self.process_response(response)
 
     @timed
-    async def index_search(self, name: str, indexes: List[str], columns: Optional[List[str]],
-        filters: Optional[List[Filter]], sort: Optional[Sort] = None, page: Optional[int] = 1,
-        language: Optional[str] = "en", string_algo: Optional[str] ="match"):
+    async def index_search(self, *, name: str, indexes: List[str], columns: Optional[List[str]],
+        filters: Optional[List[Filter]] = None, sort: Optional[Sort] = None, page: Optional[int] = 1,
+        language: Optional[str] = "en", string_algo: Optional[str] = "match"):
         """|coro|
         Search for data from on specific indexes.
         Parameters
