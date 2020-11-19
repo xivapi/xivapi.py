@@ -56,8 +56,9 @@ class XIVAPIClient:
         Optional[page: int]
             The page of results to return. Defaults to 1.
         """
-        url = ( f'{self.base_url}/character/search?'
-                'name={forename}%20{surname}&server={world}&page={page}&private_key={self.api_key}')
+        url = ( f'{self.base_url}/character/search?' \
+                f'name={forename}%20{surname}&server={world}&page={page}&private_key={self.api_key}')
+        print(url)
         async with self.session.get(url) as response:
             return await self.process_response(response)
 
