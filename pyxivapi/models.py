@@ -1,29 +1,26 @@
+from dataclasses import dataclass
+
 from .exceptions import XIVAPIInvalidFilter
 
 
+@dataclass
 class Filter:
     """
     Model class for DQL filters
     """
+    field: str
+    comparison: str
+    value: int
 
-    comparisons = ["gt", "gte", "lt", "lte"]
-
-    def __init__(self, field: str, comparison: str, value: int):
-        comparison = comparison.lower()
-
-        if comparison not in self.comparisons:
-            raise XIVAPIInvalidFilter(f'"{comparison}" is not a valid DQL filter comparison.')
-
-        self.Field = field
-        self.Comparison = comparison
-        self.Value = value
+    def __post_init__(self):
+        if self.comparison.lower() not in ["gt", "gte", "lt", "lte"]:
+            raise XIVAPIInvalidFilter(f'"{self.comparison}" is not a valid DQL filter comparison.')
 
 
+@dataclass
 class Sort:
     """
     Model class for sort field
     """
-
-    def __init__(self, field: str, ascending: bool):
-        self.Field = field
-        self.Ascending = ascending
+    field: str
+    ascending: bool

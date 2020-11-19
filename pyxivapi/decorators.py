@@ -11,6 +11,6 @@ def timed(func):
     async def wrapper(*args, **kwargs):
         start = time()
         result = await func(*args, **kwargs)
-        __log__.info("{} executed in {}s".format(func.__name__, round(time() - start, 2)))
+        __log__.info("%s executed in %ds", func.__name__, round(time() - start, 2))
         return result
     return wrapper

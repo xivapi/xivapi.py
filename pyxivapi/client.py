@@ -1,5 +1,5 @@
 import logging
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 from aiohttp import ClientSession
 
@@ -56,12 +56,15 @@ class XIVAPIClient:
         Optional[page: int]
             The page of results to return. Defaults to 1.
         """
-        url = f'{self.base_url}/character/search?name={forename}%20{surname}&server={world}&page={page}&private_key={self.api_key}'
+        url = ( f'{self.base_url}/character/search?'
+                'name={forename}%20{surname}&server={world}&page={page}&private_key={self.api_key}')
         async with self.session.get(url) as response:
             return await self.process_response(response)
 
     @timed
-    async def character_by_id(self, lodestone_id: int, extended=False, include_achievements=False, include_minions_mounts=False, include_classjobs=False, include_friendslist=False, include_freecompany=False, include_freecompany_members=False, include_pvpteam=False, language="en"):
+    async def character_by_id(self, lodestone_id: int, extended=False, include_achievements=False,
+        include_minions_mounts=False, include_classjobs=False, include_friendslist=False, include_freecompany=False,
+        include_freecompany_members=False, include_pvpteam=False, language="en"):
         """|coro|
         Request character data from XIVAPI.com
         Please see XIVAPI documentation for more information about character sync state https://xivapi.com/docs/Character#character
@@ -69,9 +72,9 @@ class XIVAPIClient:
         ------------
         lodestone_id: int
             The character's Lodestone ID.
-        """
+        """ # pylint: disable=line-too-long
 
-        params = {
+        params: Dict[str, str] = {
             "private_key": self.api_key,
             "language": language
         }
@@ -80,7 +83,7 @@ class XIVAPIClient:
             raise XIVAPIInvalidLanguage(f'"{language}" is not a valid language code for XIVAPI.')
 
         if extended is True:
-            params["extended"] = 1
+            params["extended"] = '1'
 
         data = []
         if include_achievements is True:
@@ -137,14 +140,14 @@ class XIVAPIClient:
         ------------
         lodestone_id: int
             The Free Company's Lodestone ID.
-        """
+        """ # pylint: disable=line-too-long
 
         params = {
             "private_key": self.api_key
         }
 
         if extended is True:
-            params["extended"] = 1
+            params["extended"] = '1'
 
         data = []
         if include_freecompany_members is True:
@@ -218,7 +221,9 @@ class XIVAPIClient:
             return await self.process_response(response)
 
     @timed
-    async def index_search(self, name, indexes=(), columns=(), filters: List[Filter] = (), sort: Sort = None, page=1, language="en", string_algo="match"):
+    async def index_search(self, name: str, indexes: List[str], columns: Optional[List[str]],
+        filters: Optional[List[Filter]], sort: Optional[Sort] = None, page: Optional[int] = 1,
+        language: Optional[str] = "en", string_algo: Optional[str] ="match"):
         """|coro|
         Search for data from on specific indexes.
         Parameters
@@ -245,21 +250,21 @@ class XIVAPIClient:
             The search algorithm to use for string matching (default = "match")
             Valid values are "custom", "wildcard", "wildcard_plus", "fuzzy", "term", "prefix", "match", "match_phrase",
             "match_phrase_prefix", "multi_match", "query_string"
-        """
+        """ # pylint: disable=line-too-long
 
-        if len(indexes) == 0:
+        if indexes is not None and len(indexes) == 0:
             raise XIVAPIInvalidIndex("Please specify at least one index to search for, e.g. [\"Recipe\"]")
 
-        if language.lower() not in self.languages:
+        if language is not None and language.lower() not in self.languages:
             raise XIVAPIInvalidLanguage(f'"{language}" is not a valid language code for XIVAPI.')
 
-        if len(columns) == 0:
+        if columns is not None and len(columns) == 0:
             raise XIVAPIInvalidColumns("Please specify at least one column to return in the resulting data.")
 
         if string_algo not in self.string_algos:
             raise XIVAPIInvalidAlgo(f'"{string_algo}" is not a supported string_algo for XIVAPI')
 
-        body = {
+        body: Dict[str, Any] = {
             "indexes": ",".join(list(set(indexes))),
             "columns": "ID",
             "body": {
@@ -307,25 +312,25 @@ class XIVAPIClient:
             }
         }
 
-        if len(columns) > 0:
+        if columns is not None and len(columns) > 0:
             body["columns"] = ",".join(list(set(columns)))
 
-        if len(filters) > 0:
+        if filters is not None and len(filters) > 0:
             filts = []
             for f in filters:
                 filts.append({
                     "range": {
-                        f.Field: {
-                            f.Comparison: f.Value
+                        f.field: {
+                            f.comparison: f.value
                         }
                     }
                 })
 
-            body["body"]["query"]["bool"]["filter"] = filts
+            body["body"]["query"]["bool"]["filter"] = filts # mypy: ignore
 
         if sort:
             body["body"]["sort"] = [{
-                sort.Field: "asc" if sort.Ascending else "desc"
+                sort.field: "asc" if sort.ascending else "desc"
             }]
 
         url = f'{self.base_url}/search?language={language}&private_key={self.api_key}'
@@ -348,7 +353,7 @@ class XIVAPIClient:
         Optional[language: str]
             The two character length language code that indicates the language to return the response in. Defaults to English (en).
             Valid values are "en", "fr", "de" & "ja"
-        """
+        """ # pylint: disable=line-too-long
         if index == "":
             raise XIVAPIInvalidIndex("Please specify an index to search on, e.g. \"Item\"")
 
@@ -378,7 +383,7 @@ class XIVAPIClient:
         Optional[language: str]
             The two character length language code that indicates the language to return the response in. Defaults to English (en).
             Valid values are "en", "fr", "de" & "ja"
-        """
+        """ # pylint: disable=line-too-long
         params = {
             "private_key": self.api_key,
             "language": language,
@@ -399,7 +404,7 @@ class XIVAPIClient:
             return await self.process_response(response)
 
     async def process_response(self, response):
-        __log__.info(f'{response.status} from {response.url}')
+        __log__.info('%d from %s', response.status, response.url)
 
         if response.status == 200:
             return await response.json()
@@ -417,4 +422,5 @@ class XIVAPIClient:
             raise XIVAPIError("An internal server error has occured on XIVAPI.")
 
         if response.status == 503:
-            raise XIVAPIServiceUnavailable("Service is unavailable. This could be because the Lodestone is under maintenance.")
+            raise XIVAPIServiceUnavailable("Service is unavailable. This could be because "
+                "the Lodestone is under maintenance.")

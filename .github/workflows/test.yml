@@ -1,0 +1,35 @@
+name: Test
+on: [push, pull_request]
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Install development dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install .[dev]
+    - name: Pip list
+      run: pip list -v
+
+    - name: Cache dependencies
+      uses: actions/cache@v2
+      with:
+        path: |
+          /opt/hostedtoolcache/Python/3.8.1/x64/lib/python3.8/site-packages
+        key: ${{ hashFiles('setup.py') }}
+        restore-keys: setup.py
+
+    - name: pylint
+      run: pylint pyxivapi
+
+    - name: mypy
+      run: mypy pyxivapi

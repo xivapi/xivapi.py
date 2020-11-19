@@ -5,6 +5,9 @@ import setuptools
 with open('requirements.txt') as f:
     REQUIREMENTS = f.readlines()
 
+with open('requirements.dev.txt') as f:
+    DEV_REQUIREMENTS = f.readlines()
+
 with open('README.md') as f:
     README = f.read()
 
@@ -25,6 +28,9 @@ setuptools.setup(
     keywords='ffxiv xivapi',
     include_package_data=True,
     install_requires=REQUIREMENTS,
+    extras_require={
+        'dev': DEV_REQUIREMENTS,
+    },
     classifiers=[
         'License :: OSI Approved :: MIT License',
         'Intended Audience :: Developers',
