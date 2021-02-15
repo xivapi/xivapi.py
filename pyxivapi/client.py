@@ -3,8 +3,11 @@ from typing import List, Optional
 
 from aiohttp import ClientSession
 
-from .exceptions import XIVAPIBadRequest, XIVAPIForbidden, XIVAPINotFound, XIVAPIServiceUnavailable, \
-    XIVAPIInvalidLanguage, XIVAPIError, XIVAPIInvalidIndex, XIVAPIInvalidColumns, XIVAPIInvalidAlgo
+from .exceptions import (
+    XIVAPIBadRequest, XIVAPIForbidden, XIVAPINotFound, XIVAPIServiceUnavailable, 
+    XIVAPIInvalidLanguage, XIVAPIError, XIVAPIInvalidIndex, XIVAPIInvalidColumns, 
+    XIVAPIInvalidAlgo
+)
 from .decorators import timed
 from .models import Filter, Sort
 
@@ -218,7 +221,7 @@ class XIVAPIClient:
             return await self.process_response(response)
 
     @timed
-    async def index_search(self, name, indexes=(), columns=(), filters: List[Filter] = (), sort: Sort = None, page=1, per_page=10, language="en", string_algo="match"):
+    async def index_search(self, name, indexes=(), columns=(), filters: List[Filter] = (), sort: Sort = None, page=0, per_page=10, language="en", string_algo="match"):
         """|coro|
         Search for data from on specific indexes.
         Parameters
@@ -304,7 +307,7 @@ class XIVAPIClient:
                         }]
                     }
                 },
-                "from": (page * per_page),
+                "from": page,
                 "size": per_page
             }
         }

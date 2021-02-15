@@ -68,6 +68,19 @@ async def fetch_example_results():
         name="Elysium"
     )
 
+    # Item search with paging
+    item = await client.index_search(
+        name="Eden",
+        indexes=["Item"],
+        columns=["ID", "Name"],
+        filters=[
+            Filter("LevelItem", "gt", 520)
+        ],
+        sort=Sort("LevelItem", False),
+        page=0,
+        per_page=10
+    )
+
     # Fuzzy search XIVAPI game data for a recipe by name. Results will be in English.
     recipe = await client.index_search(
         name="Crimson Cider", 
@@ -92,8 +105,7 @@ async def fetch_example_results():
     )
 
     filters = [
-        Filter("ClassJobLevel", "gte", 0),
-        Filter("ClassJobCategory", "gt", 0),
+        Filter("ClassJobLevel", "gte", 0)
     ]
 
     # Get non-npc actions matching a given term (Defiance)
